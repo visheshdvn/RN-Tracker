@@ -40,6 +40,13 @@ const AuthForm = ({ headerText, errorMessage, onSubmit, submitButtonText }) => {
     );
 };
 
-const Styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+    errorMessage: {
+        fontSize: 16,
+        color: "red",
+        marginLeft: 15,
+        marginTop: 15,
+    },
+});
 
 export default AuthForm;
