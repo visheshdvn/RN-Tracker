@@ -1,40 +1,17 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { Platform } from "react-native";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Text } from "react-native-elements";
-import { SafeAreaView } from "react-navigation";
+import { SafeAreaView, withNavigationFocus } from "react-navigation";
 import Map from "../components/Map";
-import {
-    requestForegroundPermissionsAsync,
-    watchPositionAsync,
-    Accuracy,
-} from "expo-location";
 import { Context as LocationContext } from "../context/LocationContext";
+import useLocation from "../hooks/useLocation";
+import TrackForm from "../components/TrackForm";
 
-const TrackCreateScreen = () => {
-    const [err, setErr] = useState(null);
+const TrackCreateScreen = ({ isFocused }) => {
     const { addLocation } = useContext(LocationContext);
 
-    const startWatching = async () => {
-        try {
-            const { granted } = await requestForegroundPermissionsAsync();
-            await watchPositionAsync(
-                {
-                    accuracy: Accuracy.BestForNavigation,
-                    timeInterval: 1000,
-                    distanceInterval: 10,
-                },
-                (location) => {
-                    addLocation(location);
-                }
-            );
-        } catch (e) {
-            setErr(e);
-        }
-    };
-    useEffect(() => {
-        startWatching();
-    }, []);
+    const [err] = useLocation(isFocused, addLocation);
 
     return (
         <>
@@ -45,6 +22,7 @@ const TrackCreateScreen = () => {
                 <Text h3>Create a track</Text>
                 <Map />
                 {err ? <Text>Please enable loaction services.</Text> : null}
+                <TrackForm />
             </SafeAreaView>
         </>
     );
@@ -56,4 +34,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TrackCreateScreen;
+export default withNavigationFocus(TrackCreateScreen);
