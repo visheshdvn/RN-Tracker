@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Accuracy,
     requestForegroundPermissionsAsync,
@@ -11,7 +11,10 @@ export default (shouldTrack, callback) => {
 
     const startWatching = async () => {
         try {
-            await requestForegroundPermissionsAsync();
+            const { granted } = await requestForegroundPermissionsAsync();
+            if (!granted) {
+                throw new Error("Location permission not granted");
+            }
             const sub = await watchPositionAsync(
                 {
                     accuracy: Accuracy.BestForNavigation,
@@ -33,6 +36,12 @@ export default (shouldTrack, callback) => {
             subscriber.remove();
             setSubscriber(null);
         }
-    }, [shouldTrack]);
+
+        return () => {
+            if (subscriber) {
+                subscriber.remove();
+            }
+        };
+    }, [shouldTrack, callback]);
     return [err];
 };
